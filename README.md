@@ -1,9 +1,9 @@
 # 📊 ChatAnalyzer
 
-ChatAnalyzer is a **Streamlit-powered** web application for analyzing chat conversations from **Telegram and WhatsApp**. It provides **insights, statistics, and visualizations** to understand user activity, word frequency, and message trends.
+ChatAnalyzer is a **Streamlit-powered** web application for analyzing chat conversations from **Telegram**. It provides **insights, statistics, and visualizations** to understand user activity, word frequency, and message trends.
 
 ## 🚀 Features
-✅ **Upload chat files** (`.json` for Telegram, `.txt` for WhatsApp).  
+✅ **Upload chat files** (`.json` for Telegram).  
 ✅ **Automatic data cleaning** (removes service messages, normalizes timestamps & text).  
 ✅ **Chat statistics** (total messages, messages per user, common words).  
 ✅ **Visualizations** (messages over time, user activity).  
@@ -102,7 +102,6 @@ This project is licensed under the **MIT License**.
 ---
 
 ## 🎯 Future Improvements
-🔹 **WhatsApp support** (currently only Telegram JSON is fully supported).  
 🔹 **Advanced filters** (filter messages by user, keyword, or time range).  
 🔹 **Export reports** (CSV, PDF with chat insights).  
 🔹 **Authentication & multi-user access** for private deployments.  

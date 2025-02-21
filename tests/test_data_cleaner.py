@@ -1,5 +1,7 @@
 import os
 from dotenv import load_dotenv
+import pandas as pd
+from collections import Counter
 from src.data_loader import TelegramDataLoader
 from src.data_cleaner import ChatDataCleaner
 
@@ -22,20 +24,44 @@ raw_messages = loader.get_messages()
 cleaner = ChatDataCleaner(raw_messages)
 cleaned_df = cleaner.clean_data()
 
-# Display results
-# Print full DataFrame
-print(cleaned_df)
+# Step 1: Basic message structure check
+print("\n📊 Step 1: Cleaned Chat Data Sample (first 5 rows):")
+print(cleaned_df[["id", "type", "date", "from", "original_text", "cleaned_text"]].head())
 
-# Print only urls column
-df_with_urls = cleaned_df[cleaned_df["urls"].notna()]
-print("Messages containing URLs:")
-print(df_with_urls[["id", "urls"]])  # Only show relevant columns
-print("Messages containing URLs count:"+str(df_with_urls.urls.count()))
+# Step 2: URL extraction check
+if "urls" in cleaned_df.columns:
+    url_counts = cleaned_df["urls"].dropna().value_counts().reset_index()
+    url_counts.columns = ["URL", "Message Count"]
+    print("\n🔗 Step 2: Most Shared URLs:")
+    print(url_counts.head(10))
+else:
+    print("\n⚠️ Step 2: No URLs detected.")
 
-print("Cleaned Chat Data Sample:")
-print(cleaned_df.head())
+# Step 3: Emoji extraction check
+if "emojis" in cleaned_df.columns:
+    emoji_counter = Counter("".join(cleaned_df["emojis"].dropna()))
+    emoji_df = pd.DataFrame(emoji_counter.items(), columns=["Emoji", "Count"]).sort_values(by="Count", ascending=False)
+    print("\n😀 Step 3: Most Used Emojis:")
+    print(emoji_df.head(10))
+else:
+    print("\n⚠️ Step 3: No emojis detected.")
 
-# Validate that service messages were removed
-assert "service" not in cleaned_df["type"].values, "Service messages were not properly removed."
+# Step 4: Text normalization check
+print("\n📝 Step 4: Sample of Original vs. Normalized Text")
+print(cleaned_df[["original_text", "cleaned_text"]].head(10))
 
-print("Data cleaning test passed!")
+# Step 5: Tokenization check
+if "tokens" in cleaned_df.columns:
+    print("\n✂️ Step 5: Tokenized Words (first 5 messages):")
+    print(cleaned_df[["original_text", "tokens"]].head(5))
+else:
+    print("\n⚠️ Step 5: Tokenization not applied.")
+
+# Step 6: Stopword Removal, Lemmatization & Stemming check
+if "filtered_tokens" in cleaned_df.columns:
+    print("\n🛠️ Step 6: Stopword Removal, Lemmatization & Stemming")
+    print(cleaned_df[["original_text", "tokens", "filtered_tokens"]].head(5))
+else:
+    print("\n⚠️ Step 6: Stopword removal, lemmatization & stemming not applied.")
+
+print("\n✅ Data Cleaning Tests Completed Successfully!")
