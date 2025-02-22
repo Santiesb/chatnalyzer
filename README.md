@@ -1,117 +1,95 @@
-# 📊 ChatAnalyzer
+# 📊 ChatAnalyzer: Advanced Chat Analytics Platform
 
-ChatAnalyzer is a **Streamlit-powered** web application for analyzing chat conversations from **Telegram**. It provides **insights, statistics, and visualizations** to understand user activity, word frequency, and message trends.
+**Uncover insights from Telegram chats** with automated cleaning, NLP-powered analysis, and interactive visualizations. Built with Streamlit, spaCy, and NLTK.
 
-## 🚀 Features
-✅ **Upload chat files** (`.json` for Telegram).  
-✅ **Automatic data cleaning** (removes service messages, normalizes timestamps & text).  
-✅ **Chat statistics** (total messages, messages per user, common words).  
-✅ **Visualizations** (messages over time, user activity).  
-✅ **Fast processing** even for long conversations.  
+![Chat Analytics Dashboard](https://via.placeholder.com/800x400.png?text=Chat+Analytics+Dashboard+Preview)
+
+## 🌟 Key Features
+
+### 🔧 Data Processing
+- **Smart Cleaning**: Auto-removes service messages, normalizes timestamps
+- **Text Processing**:
+  - Emoji/URL extraction
+  - Accent normalization & stopword removal
+  - Spanish text support (lemmatization/stemming)
+- **Efficient Pipelines**: Handles large chat histories (>50k messages)
+
+### 📈 Analytics & NLP
+- **Message Statistics**: 
+  - User activity trends
+  - Hourly/daily/weekly patterns
+- **NLP Features**:
+  - Word frequency analysis
+  - TF-IDF keyword extraction
+  - Named Entity Recognition (Spanish/English)
+- **Interactive Visuals**:
+  - Message time series
+  - Activity heatmaps
+  - Word clouds
+
+### 🛠 Tech Stack
+- **Backend**: Python 3.9+, Pandas, NLTK, spaCy
+- **Visualization**: Streamlit, Altair, Matplotlib
+- **NLP**: SnowballStemmer, WordNetLemmatizer
 
 ---
 
-## 👤 Project Structure
+## 🚀 Getting Started
 
-```
-chatnalyzer/
-│── data/                          # Ignored (local chat files)
-│── src/                           # Source code
-│   ├── data_loader.py             # Loads chat data from files
-│   ├── data_cleaner.py            # Cleans and preprocesses messages
-│   ├── eda.py                     # Generates chat insights and visualizations
-│   ├── streamlit_app.py           # Streamlit web app
-│── tests/                         # Test scripts
-│   ├── test_data_loader.py
-│   ├── test_data_cleaner.py
-│   ├── test_eda.py
-│── .env                           # Environment variables (ignored in Git)
-│── .gitignore                     # Excludes sensitive files
-│── requirements.txt               # Python dependencies
-│── README.md                      # Project documentation
-```
+### Prerequisites
+- Python 3.9+
+- spaCy Spanish model:
+  ```bash
+  python -m spacy download es_core_news_sm
 
----
+### 🌟 Installation
 
-## 🛠 Installation & Setup
-
-### **1️⃣ Clone the Repository**
-```bash
 git clone https://github.com/YOUR-USERNAME/chatnalyzer.git
 cd chatnalyzer
-```
-
-### **2️⃣ Create a Virtual Environment**
-```bash
 python -m venv venv
-```
-
-### **3️⃣ Activate the Virtual Environment**
-- **Windows (PowerShell):**
-  ```powershell
-  venv\Scripts\Activate
-  ```
-- **Mac/Linux:**
-  ```bash
-  source venv/bin/activate
-  ```
-
-### **4️⃣ Install Dependencies**
-```bash
+source venv/bin/activate  # Linux/Mac
+venv\Scripts\activate     # Windows
 pip install -r requirements.txt
-```
 
----
+### Launch app
+streamlit run app.py
 
-## ▶️ Running the Streamlit App
-```bash
-streamlit run src/streamlit_app.py
-```
-🔹 Open the app in your browser at `http://localhost:8501/`.
+### 📂 Project Structure
+.
+├── app.py                 # Main Streamlit application
+├── src/
+│   ├── data_loader.py          # Data loading pipleine
+│   ├── data_cleaner.py         # Message cleaning pipeline
+│   ├── eda.py                  # Exploratory data analysis
+│   ├── feature_engineering.py  # NLP feature extraction
+│   └── visuals.py              # Visualization components
+├── requirements.txt            # Dependency list
+└── README.md                   # This documentation
 
----
 
-## 🧪 Running Tests
-To verify that everything is working correctly, run:
+## 🔍 Usage Guide
+1. Upload your Telegram chat export (.json)
 
-```bash
-python -m tests.test_data_loader
-python -m tests.test_data_cleaner
-python -m tests.test_eda
-```
+2. Explore automated data cleaning steps
 
----
+3. Filter by date range or specific users
 
-## 🔒 Privacy & Security
-- **All uploaded chat data is processed locally** and **never sent to external servers**.
-- Future versions will include **authentication and private cloud deployment options**.
+4. Analyze through interactive tabs:
+  - Temporal message patterns
+  - User activity comparisons
+  - Keyword/Named Entity trends
 
----
+## 🛡 Privacy & Security
+Local Processing: No data leaves your machine
 
-## 🤝 Contributing
-Contributions are welcome! To contribute:
-1. **Fork the repo** and create a new branch.
-2. Make your changes.
-3. Submit a **Pull Request**.
+Session Isolation: Analyses reset on page reload
 
----
+Clean Data Handling: Original chats never stored
 
-## 🐟 License
-This project is licensed under the **MIT License**.
+## 📜 License
+MIT License - See LICENSE for details
 
----
-
-## 🎯 Future Improvements
-🔹 **Advanced filters** (filter messages by user, keyword, or time range).  
-🔹 **Export reports** (CSV, PDF with chat insights).  
-🔹 **Authentication & multi-user access** for private deployments.  
-
----
-
-## 🌟 Contact
-For questions or feature requests, feel free to reach out via **GitHub Issues**.
-
----
-
-### **🚀 Ready to analyze your chats? Let's go!**
-
+## 📬 Contact
+For feature requests or issues:
+📧 santiago.esbert@gmail.com
+🐛 GitHub Issues
