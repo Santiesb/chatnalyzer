@@ -56,10 +56,14 @@ if uploaded_file:
         fe = FeatureEngineering(cleaned_df)
 
         # Sidebar filters
-        st.sidebar.header("🔍 Filters")
-        date_range = st.sidebar.date_input("Select Date Range", [])
-        selected_user = st.sidebar.selectbox("Filter by User", ["All"] + list(cleaned_df["from"].unique()))
-        keyword = st.sidebar.text_input("Search for Keyword")
+        with st.sidebar:
+            st.header("🔍 Filters")
+            col1, col2 = st.columns(2)
+            with col1:
+                date_range = st.date_input("Date Range", [])
+            with col2:
+                selected_user = st.selectbox("User", ["All"] + list(cleaned_df["from"].unique()))
+            keyword = st.text_input("Search Keyword")
 
         # Apply filters
         if selected_user != "All":
@@ -69,64 +73,60 @@ if uploaded_file:
 
         # Main statistics
         st.subheader("Chat Statistics 📊")
-        st.write(f"**Total messages:** {len(cleaned_df)}")
-        st.dataframe(cleaned_df[["from", "date", "original_text", "cleaned_text"]])
+        col1, col2 = st.columns(2)
+        with col1:
+            st.metric("Total Messages", len(cleaned_df))
+        with col2:
+            st.metric("Unique Users", cleaned_df["from"].nunique())
+        
+        with st.expander("View Data Table"):
+            st.dataframe(cleaned_df[["from", "date", "original_text", "cleaned_text"]])
 
         # Visualizations
         st.subheader("Visualizations 📈")
+        col1, col2 = st.columns(2)
 
-        # Messages Over Time
-        st.write("### Messages Over Time")
-        st.line_chart(eda.messages_over_time("D").set_index("Date"))
+        with col1:
+            st.write("### Messages Over Time")
+            st.line_chart(eda.messages_over_time("D").set_index("Date"))
 
-        # Messages Per User
-        st.write("### Messages Per User")
-        st.bar_chart(eda.messages_per_user().set_index("User"))
+        with col2:
+            st.write("### Messages Per User")
+            st.bar_chart(eda.messages_per_user().set_index("User"))
 
-        # Most Frequent Words
-        st.write("### Most Frequent Words")
-        word_freq = fe.word_frequency(20)
-        fig, ax = plt.subplots(figsize=(10, 5))
-        sns.barplot(data=word_freq, x="Word", y="Count", ax=ax)
-        plt.xticks(rotation=45)
-        st.pyplot(fig)
+        # Heatmap of Message Activity by Hour and Day
+        st.write("### Message Activity Heatmap (Hour vs. Day)")
+        heatmap_data = eda.messages_by_day_hour()
+
+        if heatmap_data is not None and not heatmap_data.empty:
+            fig, ax = plt.subplots(figsize=(8, 3))
+            heatmap = sns.heatmap(
+                            heatmap_data
+                            , cmap="coolwarm"
+                            , linewidths=0.5
+                            , annot=True
+                            , fmt=".0f"
+                            , ax=ax
+                            , annot_kws={"size": 4}
+                            , cbar=False
+                            ) # Plot heatmap
+            # Set heatmap labels and reduce side legend
+            heatmap.figure.colorbar(heatmap.collections[0]).ax.tick_params(labelsize=6)
+            plt.xticks(fontsize=6, rotation=0)
+            plt.yticks(fontsize=5, rotation=0)
+            plt.xlabel("Day of the Week", fontsize=8)
+            plt.ylabel("Hour of the Day", fontsize=8)
+            st.pyplot(fig)
+        else:
+            st.write("No data available for heatmap.")
 
         # Word Cloud
         st.write("### Word Cloud")
         wordcloud = WordCloud(width=800, height=400, background_color="white").generate(" ".join(cleaned_df["cleaned_text"].dropna()))
-        plt.figure(figsize=(10, 5))
+        plt.figure(figsize=(8, 4))
         plt.imshow(wordcloud, interpolation="bilinear")
         plt.axis("off")
         st.pyplot(plt)
-
-        # Emoji Frequency Analysis
-        st.write("### Most Used Emojis")
-        emoji_counts = cleaned_df["emojis"].dropna().explode().value_counts().reset_index()
-        emoji_counts.columns = ["Emoji", "Count"]
-        st.dataframe(emoji_counts.head(10))
-
-        # Most Shared URLs
-        st.write("### Most Shared URLs")
-        if "urls" in cleaned_df.columns:
-            url_counts = cleaned_df["urls"].dropna().value_counts().reset_index()
-            url_counts.columns = ["URL", "Message Count"]
-            st.dataframe(url_counts.head(10))
-
-        # Named Entity Recognition (NER)
-        st.write("### Named Entities Detected (People, Locations, Brands)")
-        ner_df = fe.named_entity_recognition()
-        if not ner_df.empty:
-            fig, ax = plt.subplots(figsize=(10, 5))
-            sns.barplot(data=ner_df, x="Entity", y="Count", ax=ax)
-            plt.xticks(rotation=45)
-            st.pyplot(fig)
-        else:
-            st.write("No named entities detected.")
-
-        # TF-IDF Word Importance
-        st.write("### Most Important Words (TF-IDF)")
-        tfidf_df = fe.compute_tfidf(20)
-        st.dataframe(tfidf_df)
 
         log("✅ Analysis Completed!")
         st.success("Analysis Completed! ✅")

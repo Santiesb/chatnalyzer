@@ -94,3 +94,25 @@ class ChatEDA:
         plt.xlabel("Date")
         plt.ylabel("Number of Messages")
         plt.show()
+
+    def messages_by_day_hour(self) -> pd.DataFrame:
+        """
+        Aggregates message counts by day of the week and hour of the day.
+
+        :return: Pivot table DataFrame for heatmap visualization.
+        """
+        self.df["date"] = pd.to_datetime(self.df["date"])
+        self.df["day_of_week"] = self.df["date"].dt.day_name()  # Get day names (Monday, Tuesday, etc.)
+        self.df["hour"] = self.df["date"].dt.hour  # Get hour of the day (0-23)
+
+        # Aggregate message count per (hour, day)
+        heatmap_data = self.df.groupby(["hour", "day_of_week"]).size().reset_index(name="message_count")
+
+        # Pivot for heatmap format (switched axes)
+        days_order = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+        pivot_table = heatmap_data.pivot(index="hour", columns="day_of_week", values="message_count")
+
+        # Ensure all hour-day combinations exist by filling missing values with 0
+        pivot_table = pivot_table.reindex(index=range(0, 24), columns=days_order, fill_value=0)
+
+        return pivot_table
