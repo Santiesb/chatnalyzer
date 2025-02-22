@@ -60,19 +60,17 @@ class ChatEDA:
 
     def user_interactions(self) -> pd.DataFrame:
         """
-        Extracts interactions between users based on 'id' and 'reply_to_message_id'.
+        Extracts interactions between users based on 'id' and 'reply_to_id'.
         Returns a DataFrame with columns 'Replier' and 'Original'.
         """
-        # Filter messages that have a valid reply_to_id
-        interactions = self.df[self.df['reply_to_message_id'].notnull()]
-        # Build mapping from message id to sender
+        interactions = self.df[self.df['reply_to_id'].notnull()]
         id_to_user = self.df.set_index('id')['from'].to_dict()
         interaction_rows = []
         for _, row in interactions.iterrows():
-            reply_to = row['reply_to_message_id']
+            reply_to = row['reply_to_id']
             if reply_to in id_to_user:
                 interaction_rows.append({
-                    'Replier': row['id'],
+                    'Replier': row['from'],
                     'Original': id_to_user[reply_to]
                 })
         return pd.DataFrame(interaction_rows)

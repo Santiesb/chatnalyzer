@@ -97,21 +97,4 @@ if uploaded_file:
 
         visualizer.plot_messages_per_user()
         visualizer.plot_wordcloud()
-
-        # Advanced Analysis Tabs
-        st.subheader("Advanced Analysis 🚀")
-        adv_tabs = st.tabs(["Word Frequency", "TF-IDF Scores", "Named Entities", "User Interactions"])
-
-        # Advanced analysis using FeatureEngineering
-        fe = FeatureEngineering(filtered_df)
-        with adv_tabs[0]:
-            st.write("#### Most Frequent Words")
-            word_freq_df = fe.word_frequency()
-            st.dataframe(word_freq_df)
-            st.bar_chart(word_freq_df.set_index("Word"))
-            
-        with adv_tabs[1]:
-            st.write("#### TF-IDF Scores")
-            tfidf_df = fe.compute_tfidf()
-            st.dataframe(tfidf_df)
             
