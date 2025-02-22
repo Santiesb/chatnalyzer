@@ -1,95 +1,126 @@
-# 📊 ChatAnalyzer: Advanced Chat Analytics Platform
+# **📊 ChatAnalyzer: Advanced Chat Analytics Platform**
 
-**Uncover insights from Telegram chats** with automated cleaning, NLP-powered analysis, and interactive visualizations. Built with Streamlit, spaCy, and NLTK.
+**Gain deep insights from Telegram chats** with **automated text cleaning, NLP-powered analysis, and interactive visualizations**.\
+Built with **Streamlit, Pandas, NLTK, and spaCy** for efficient chat exploration.
 
-![Chat Analytics Dashboard](https://via.placeholder.com/800x400.png?text=Chat+Analytics+Dashboard+Preview)
 
-## 🌟 Key Features
-
-### 🔧 Data Processing
-- **Smart Cleaning**: Auto-removes service messages, normalizes timestamps
-- **Text Processing**:
-  - Emoji/URL extraction
-  - Accent normalization & stopword removal
-  - Spanish text support (lemmatization/stemming)
-- **Efficient Pipelines**: Handles large chat histories (>50k messages)
-
-### 📈 Analytics & NLP
-- **Message Statistics**: 
-  - User activity trends
-  - Hourly/daily/weekly patterns
-- **NLP Features**:
-  - Word frequency analysis
-  - TF-IDF keyword extraction
-  - Named Entity Recognition (Spanish/English)
-- **Interactive Visuals**:
-  - Message time series
-  - Activity heatmaps
-  - Word clouds
-
-### 🛠 Tech Stack
-- **Backend**: Python 3.9+, Pandas, NLTK, spaCy
-- **Visualization**: Streamlit, Altair, Matplotlib
-- **NLP**: SnowballStemmer, WordNetLemmatizer
 
 ---
 
-## 🚀 Getting Started
+## **🌟 Features & Capabilities**
 
-### Prerequisites
-- Python 3.9+
-- spaCy Spanish model:
+### **🔧 Data Processing**
+
+- **Automated Cleaning**: Removes service messages (user joins, group changes).
+- **Text Preprocessing**:
+  - Extracts **emojis, URLs, and mentions**.
+  - Normalizes text (lowercasing, stopword removal, accent handling).
+  - Supports **Spanish NLP** (lemmatization, stemming).
+- **Scalable Pipeline**: Optimized for **large chat histories (>50K messages)**.
+
+### **📈 Chat Analytics & NLP**
+
+- **Message Statistics**:
+  - **User Activity**: Top senders, message frequency trends.
+  - **Time-Based Patterns**: Daily/weekly trends, peak messaging hours.
+- **NLP-Powered Analysis**:
+  - **Word Frequency & TF-IDF** keyword extraction.
+  - **Named Entity Recognition (NER)** (Supports **Spanish & English**).
+- **Interactive Visualizations**:
+  - **Message Trends** over time.
+  - **User Activity Heatmaps**.
+  - **Word Clouds** from chat data.
+
+---
+
+## **🚀 Getting Started**
+
+### **📌 Prerequisites**
+
+- **Python 3.9+**
+- **spaCy Spanish model** (for advanced NLP):
   ```bash
   python -m spacy download es_core_news_sm
+  ```
 
-### 🌟 Installation
+### **💾 Installation**
 
+```bash
 git clone https://github.com/YOUR-USERNAME/chatnalyzer.git
 cd chatnalyzer
 python -m venv venv
 source venv/bin/activate  # Linux/Mac
 venv\Scripts\activate     # Windows
 pip install -r requirements.txt
+```
 
-### Launch app
+### **▶️ Running the App**
+
+```bash
 streamlit run app.py
+```
 
-### 📂 Project Structure
-.
+---
+
+## **👤 Project Structure**
+
+```bash
+💾 chatnalyzer/
 ├── app.py                 # Main Streamlit application
-├── src/
-│   ├── data_loader.py          # Data loading pipleine
-│   ├── data_cleaner.py         # Message cleaning pipeline
-│   ├── eda.py                  # Exploratory data analysis
-│   ├── feature_engineering.py  # NLP feature extraction
-│   └── visuals.py              # Visualization components
-├── requirements.txt            # Dependency list
-└── README.md                   # This documentation
+├── requirements.txt        # Project dependencies
+├── README.md               # Documentation
+└── src/                    # Core logic
+    ├── data_loader.py       # Chat file loading pipeline
+    ├── data_cleaner.py      # Data preprocessing & text cleaning
+    ├── eda.py               # Exploratory data analysis (EDA)
+    ├── feature_engineering.py # NLP feature extraction (TF-IDF, NER)
+    ├── visualizations.py    # Streamlit visual components
+    ├── utils.py             # Utility functions (logging, error handling)
+```
 
+---
 
-## 🔍 Usage Guide
-1. Upload your Telegram chat export (.json)
+## **📚 Usage Guide**
 
-2. Explore automated data cleaning steps
+1️⃣ **Upload** your Telegram chat export (`.json`).\
+2️⃣ **Explore** automated **data cleaning & preprocessing**.\
+3️⃣ **Apply filters** (date range, user selection).\
+4️⃣ **Analyze chat patterns** through interactive dashboards:
 
-3. Filter by date range or specific users
+- 📈 **Message Trends** (daily, weekly activity).
+- 🔥 **User Activity Heatmaps**.
+- 🏅 **Keyword & Named Entity Trends**.
 
-4. Analyze through interactive tabs:
-  - Temporal message patterns
-  - User activity comparisons
-  - Keyword/Named Entity trends
+---
 
-## 🛡 Privacy & Security
-Local Processing: No data leaves your machine
+## **🛡 Privacy & Security**
 
-Session Isolation: Analyses reset on page reload
+✔ **Local Processing**: **All data is processed on your machine** – no cloud storage or data leaks.\
+✔ **Session Isolation**: **Analyses reset** upon page refresh – no saved data.\
+✔ **Data Protection**: Your **original chat files remain untouched**.
 
-Clean Data Handling: Original chats never stored
+---
 
-## 📜 License
-MIT License - See LICENSE for details
+## **💜 License**
 
-## 📬 Contact
-For feature requests or issues:
-📧 santiago.esbert@gmail.com
-🐛 GitHub Issues
+This project is open-source and licensed under the **MIT License**.\
+See the [`LICENSE`](./LICENSE) file for details.
+
+---
+
+## **📩 Contact & Support**
+
+📧 Email: [**santiago.esbert@gmail.com**](mailto\:santiago.esbert@gmail.com)\
+🐛 Report Issues: [**GitHub Issues**](https://github.com/YOUR-USERNAME/chatnalyzer/issues)
+
+---
+
+### **✨ Why This Version is Better?**
+
+✅ **More Professional & Structured** – Clear sections, bullet points, and explanations.\
+✅ **Simplified Installation & Running Steps** – Easier to follow for new users.\
+✅ **Security & Privacy Section** – Highlights **local-only data processing**.\
+✅ **Better Readability** – Shorter sentences, improved formatting.
+
+Would you like to add anything else (e.g., example screenshots, FAQs)? 🚀
+
