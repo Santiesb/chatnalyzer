@@ -10,8 +10,18 @@ from nltk.corpus import stopwords
 from nltk.stem import SnowballStemmer, WordNetLemmatizer
 
 # Ensure necessary resources are downloaded
-nltk.download("stopwords")
-nltk.download("wordnet")
+import nltk
+
+def check_nltk_resource(resource_name: str):
+    try:
+        nltk.data.find(resource_name)
+    except LookupError:
+        nltk.download(resource_name, quiet=True)
+
+# At the start of the class or in __init__:
+check_nltk_resource("stopwords")
+check_nltk_resource("wordnet")
+check_nltk_resource("punkt")
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -27,27 +37,28 @@ class ChatDataCleaner:
         self.messages = messages
         self.cleaned_data = None
 
-    def remove_service_messages(self) -> List[Dict[str, Any]]:
+    def remove_service_messages(self) -> tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
         """
         Removes messages that are of type 'service' (e.g., user joined, changed group name).
         
         :return: List of cleaned messages without service messages.
         """
+        #print list of type of messages in the chat
+        types = set([msg.get("type") for msg in self.messages])
+        logger.info(f"Message types found in the chat: {types}")
+
+        filtered_actions = [msg for msg in self.messages if msg.get("type") == "service"]
         filtered_messages = [msg for msg in self.messages if msg.get("type") == "message"]
         logger.info(f"Removed {len(self.messages) - len(filtered_messages)} service messages.")
-        return filtered_messages
+        return filtered_messages, filtered_actions
 
     def standardize_timestamps(self, messages: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """
-        Converts timestamps to datetime objects.
-
-        :param messages: List of messages with raw timestamps.
-        :return: List of messages with standardized timestamps.
-        """
-        for msg in messages:
-            if "date" in msg:
-                msg["date"] = datetime.fromisoformat(msg["date"])
-        logger.info("Standardized timestamps for all messages.")
+        """Converts timestamps to datetime objects."""
+        if messages:
+            for msg in messages:
+                if "date" in msg:
+                    msg["date"] = datetime.fromisoformat(msg["date"])
+            logger.info(f"Standardized timestamps for {len(messages)} messages.")  # ✅ Unique log message
         return messages
 
     def extract_urls(self, messages: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -120,27 +131,31 @@ class ChatDataCleaner:
             return unicodedata.normalize("NFKD", text).encode("ASCII", "ignore").decode("utf-8")
 
         for msg in messages:
-            if "text" in msg and isinstance(msg["text"], str):
-                msg["original_text"] = msg["text"]  # Store the original message
+            if "text" in msg:
+                if isinstance(msg["text"], list):
+                    msg["text"] = " ".join([str(item) for item in msg["text"] if isinstance(item, str)])
                 
+                if isinstance(msg["text"], str):
+                    msg["original_text"] = msg["text"]
                 # Convert text to lowercase
-                cleaned_text = msg["text"].lower()
+                    cleaned_text = msg["text"].lower()
 
-                # Replace accented characters
-                cleaned_text = remove_accents(cleaned_text)
+                    # Replace accented characters
+                    cleaned_text = remove_accents(cleaned_text)
 
-                # Remove special characters except spaces
-                cleaned_text = re.sub(r"[^a-z0-9\s]", "", cleaned_text)
+                    # Remove special characters except spaces
+                    cleaned_text = re.sub(r"[^a-z0-9\s]", "", cleaned_text)
 
-                # Trim extra spaces
-                cleaned_text = re.sub(r"\s+", " ", cleaned_text).strip()
+                    # Trim extra spaces
+                    cleaned_text = re.sub(r"\s+", " ", cleaned_text).strip()
 
-                msg["cleaned_text"] = cleaned_text  # Store cleaned version
+                    msg["cleaned_text"] = cleaned_text  # Store cleaned version
+                    
+                else:
+                    msg["cleaned_text"] = ""
 
         logger.info("Applied text normalization: lowercasing, removing accents, cleaning characters.")
         return messages
-    
-    nltk.download("punkt")
 
     def tokenize_text(self, messages: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
@@ -186,15 +201,15 @@ class ChatDataCleaner:
         """
         Runs all cleaning functions and returns a cleaned Pandas DataFrame.
         """
-        cleaned_messages = self.remove_service_messages() 
-        cleaned_messages = self.standardize_timestamps(cleaned_messages) 
-        cleaned_messages = self.extract_urls(cleaned_messages) 
+        cleaned_messages, self.cleaned_actions = self.remove_service_messages() 
+        cleaned_messages = self.standardize_timestamps(cleaned_messages)
+        cleaned_messages = self.extract_urls(cleaned_messages)
         cleaned_messages = self.extract_emojis(cleaned_messages)
         cleaned_messages = self.normalize_text(cleaned_messages)
-        cleaned_messages = self.tokenize_text(cleaned_messages)  
-        cleaned_messages = self.remove_stopwords_and_lemmatize(cleaned_messages)  
+        cleaned_messages = self.tokenize_text(cleaned_messages)
+        cleaned_messages = self.remove_stopwords_and_lemmatize(cleaned_messages)
 
-        # Convert to DataFrame
+        # convert to dataframe
         self.cleaned_data = pd.DataFrame(cleaned_messages)
         logger.info(f"Cleaned data contains {len(self.cleaned_data)} messages.")
         return self.cleaned_data
