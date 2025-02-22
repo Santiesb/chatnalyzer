@@ -12,13 +12,14 @@ from utils import log
 from visualizations import plot_messages_over_time, plot_messages_per_user, plot_heatmap, plot_wordcloud
 
 # Streamlit UI
+st.set_page_config(layout='wide')
 st.title("📊 Advanced Chat Analyzer Dashboard 🗨️")
 st.write("Upload your Telegram or WhatsApp chat file to analyze conversations deeply.")
 
 # File uploader
 uploaded_file = st.file_uploader("Upload your chat file", type=["json", "txt"])
 
-# ✅ Create a placeholder for logs (after file is uploaded)
+# Create a placeholder for logs (after json is uploaded)
 log_container = st.container()
 
 # Cache data processing to avoid reloading on every interaction
@@ -42,9 +43,13 @@ if uploaded_file:
             data = json.load(uploaded_file)
             messages = data.get("messages", [])
 
-            log(log_status, "🧹 Processing data...")
+            log(log_status, "🧹 Cleaning & processing data...")
             cleaned_df, eda, fe = process_data(messages)
-            log(log_status, "✅ Analysis Completed!", status="success")
+            log(log_status, "✅ Successfully loaded data!", status="success")
+
+        # Development Preview: Small visualization of the dataframe
+        st.subheader("🔍 Data Preview")
+        st.dataframe(cleaned_df.head(10), use_container_width=True)
 
         # Sidebar filters
         with st.sidebar:
