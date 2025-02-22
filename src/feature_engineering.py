@@ -1,13 +1,27 @@
 import pandas as pd
-import nltk
 from collections import Counter
 from sklearn.feature_extraction.text import TfidfVectorizer
 import spacy
+import nltk
 
-# Ensure necessary resources are available
-nltk.download("stopwords")
-nltk.download("punkt")
-nlp = spacy.load("es_core_news_sm")  # Load small Spanish NLP model
+def check_nltk_resource(resource_name: str):
+    try:
+        nltk.data.find(resource_name)
+    except LookupError:
+        nltk.download(resource_name.split("/")[1], quiet=True)  # Quiet mode
+
+check_nltk_resource("corpora/stopwords")
+check_nltk_resource("tokenizers/punkt")
+
+# Load small Spanish NLP model
+try:
+    nlp = spacy.load("es_core_news_sm")
+except OSError:
+    print("Downloading Spanish spaCy model...")
+    from spacy.cli import download
+    download("es_core_news_sm")
+    nlp = spacy.load("es_core_news_sm") 
+
 
 class FeatureEngineering:
     def __init__(self, cleaned_data: pd.DataFrame):
