@@ -1,3 +1,4 @@
+# eda.py
 import pandas as pd
 from typing import Any
 
@@ -44,7 +45,6 @@ class ChatEDA:
 
         days_order = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
         pivot_table = heatmap_data.pivot(index="hour", columns="day_of_week", values="message_count")
-
         pivot_table = pivot_table.reindex(index=range(0, 24), columns=days_order, fill_value=0)
         return pivot_table
 
@@ -57,3 +57,22 @@ class ChatEDA:
         url_counts = urls_df["urls"].dropna().value_counts().reset_index()
         url_counts.columns = ["URL", "Message Count"]
         return url_counts
+
+    def user_interactions(self) -> pd.DataFrame:
+        """
+        Extracts interactions between users based on 'id' and 'reply_to_message_id'.
+        Returns a DataFrame with columns 'Replier' and 'Original'.
+        """
+        # Filter messages that have a valid reply_to_id
+        interactions = self.df[self.df['reply_to_message_id'].notnull()]
+        # Build mapping from message id to sender
+        id_to_user = self.df.set_index('id')['from'].to_dict()
+        interaction_rows = []
+        for _, row in interactions.iterrows():
+            reply_to = row['reply_to_message_id']
+            if reply_to in id_to_user:
+                interaction_rows.append({
+                    'Replier': row['id'],
+                    'Original': id_to_user[reply_to]
+                })
+        return pd.DataFrame(interaction_rows)

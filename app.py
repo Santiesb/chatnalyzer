@@ -1,18 +1,20 @@
+# app.py
 import json
 import streamlit as st
 import pandas as pd
 from src.data_cleaner import ChatDataCleaner
 from src.eda import ChatEDA
 from src.visuals import ChatVisualizer
+from src.feature_engineering import FeatureEngineering
 from utils import log
 import logging
 nltk_logger = logging.getLogger('nltk')
 nltk_logger.setLevel(logging.WARNING)
 
-# Streamlit UI
+# Streamlit UI setup
 st.set_page_config(layout='wide')
-st.title("📊 Advanced Chat Analyzer Dashboard 🗨️")
-st.write("Upload your Telegram or WhatsApp chat file to analyze conversations deeply.")
+st.title("📊 The Chatnalyzer 🗨️")
+st.write("Upload your Telegram chat file to analyze your deepest conversations.")
 
 # File uploader
 uploaded_file = st.file_uploader("Upload your chat file", type=["json"])
@@ -23,7 +25,6 @@ def process_data(messages):
     cleaned_df = cleaner.clean_data() 
     cleaned_actions = cleaner.standardize_timestamps(cleaner.cleaned_actions)
     actions_df = pd.DataFrame(cleaned_actions)
-    
     return cleaned_df, actions_df
 
 if uploaded_file:
@@ -78,7 +79,7 @@ if uploaded_file:
         with st.expander("🔍 View Actions (User Joins, Name Changes, etc.)"):
             st.dataframe(filtered_actions_df, use_container_width=True)
 
-        # show the statistics & visualizations below
+        # Show chat statistics
         st.subheader("Chat Statistics 📊")
         col1, col2 = st.columns(2)
         with col1:
@@ -86,15 +87,31 @@ if uploaded_file:
         with col2:
             st.metric("Unique Users", cleaned_df["from"].nunique())
 
-        #  visualizations
+        # Basic visualizations
         st.subheader("Visualizations 📈")
         col1, col2 = st.columns(2)
         with col1:
-            col_gran, col_labels = st.columns([3, 1])
             visualizer.plot_messages_over_time()
-        
         with col2:
             visualizer.plot_heatmap()
 
         visualizer.plot_messages_per_user()
         visualizer.plot_wordcloud()
+
+        # Advanced Analysis Tabs
+        st.subheader("Advanced Analysis 🚀")
+        adv_tabs = st.tabs(["Word Frequency", "TF-IDF Scores", "Named Entities", "User Interactions"])
+
+        # Advanced analysis using FeatureEngineering
+        fe = FeatureEngineering(filtered_df)
+        with adv_tabs[0]:
+            st.write("#### Most Frequent Words")
+            word_freq_df = fe.word_frequency()
+            st.dataframe(word_freq_df)
+            st.bar_chart(word_freq_df.set_index("Word"))
+            
+        with adv_tabs[1]:
+            st.write("#### TF-IDF Scores")
+            tfidf_df = fe.compute_tfidf()
+            st.dataframe(tfidf_df)
+            
