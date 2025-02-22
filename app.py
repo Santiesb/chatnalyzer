@@ -11,9 +11,6 @@ from src.feature_engineering import FeatureEngineering
 from utils import log
 from visualizations import plot_messages_over_time, plot_messages_per_user, plot_heatmap, plot_wordcloud
 
-# `set_page_config` MUST be the first Streamlit command
-st.set_page_config(page_title="Chat Analyzer", layout="wide")
-
 # Streamlit UI
 st.title("📊 Advanced Chat Analyzer Dashboard 🗨️")
 st.write("Upload your Telegram or WhatsApp chat file to analyze conversations deeply.")
@@ -21,55 +18,65 @@ st.write("Upload your Telegram or WhatsApp chat file to analyze conversations de
 # File uploader
 uploaded_file = st.file_uploader("Upload your chat file", type=["json", "txt"])
 
+# ✅ Create a placeholder for logs (after file is uploaded)
+log_container = st.container()
+
+# Cache data processing to avoid reloading on every interaction
+@st.cache_data
+def process_data(messages):
+    cleaner = ChatDataCleaner(messages)
+    cleaned_df = cleaner.clean_data()
+    eda = ChatEDA(cleaned_df)
+    fe = FeatureEngineering(cleaned_df)
+    return cleaned_df, eda, fe
+
 if uploaded_file:
     file_extension = uploaded_file.name.split(".")[-1]
 
+    with log_container:
+        log_status = st.empty()  # Placeholder for status updates
+
     if file_extension == "json":
-        log("📂 Loading chat data...")
-        data = json.load(uploaded_file)
-        messages = data.get("messages", [])
+        with log_container:
+            log(log_status, "📂 Loading chat data...")
+            data = json.load(uploaded_file)
+            messages = data.get("messages", [])
 
-        log("🧹 Cleaning data...")
-        cleaner = ChatDataCleaner(messages)
-        cleaned_df = cleaner.clean_data()
-
-        log("📊 Running Exploratory Data Analysis...")
-        eda = ChatEDA(cleaned_df)
-
-        log("🛠️ Extracting Features...")
-        fe = FeatureEngineering(cleaned_df)
+            log(log_status, "🧹 Processing data...")
+            cleaned_df, eda, fe = process_data(messages)
+            log(log_status, "✅ Analysis Completed!", status="success")
 
         # Sidebar filters
         with st.sidebar:
             st.header("🔍 Filters")
-            selected_user = st.selectbox("User", ["All"] + list(cleaned_df["from"].unique()))
-            keyword = st.text_input("Search Keyword")
+            date_range = st.date_input("Select Date Range", [])
+            selected_user = st.selectbox("Filter by User", ["All"] + list(cleaned_df["from"].unique()))
 
         # Apply filters
         if selected_user != "All":
             cleaned_df = cleaned_df[cleaned_df["from"] == selected_user]
-        if keyword:
-            cleaned_df = cleaned_df[cleaned_df["cleaned_text"].str.contains(keyword, case=False, na=False)]
 
-        # Main statistics
+        # Now show the statistics & visualizations below
         st.subheader("Chat Statistics 📊")
-        st.metric("Total Messages", len(cleaned_df))
-        st.metric("Unique Users", cleaned_df["from"].nunique())
+        col1, col2 = st.columns(2)
+        with col1:
+            st.metric("Total Messages", len(cleaned_df))
+        with col2:
+            st.metric("Unique Users", cleaned_df["from"].nunique())
 
-        # Data Table (Inside Expander)
-        with st.expander("View Data Table"):
-            st.dataframe(cleaned_df[["from", "date", "original_text", "cleaned_text"]])
-
-        # Visualizations
+        # Show visualizations
         st.subheader("Visualizations 📈")
+        col1, col2 = st.columns(2)
+        with col1:
+            col_gran, col_labels = st.columns([3, 1])
+            plot_messages_over_time(eda)
         
-        plot_messages_over_time(eda)
-        plot_messages_per_user(eda)
-        plot_heatmap(eda)
-        plot_wordcloud(cleaned_df)
+        with col2:
+            plot_heatmap(eda)
 
-        log("✅ Analysis Completed!")
-        st.success("Analysis Completed! ✅")
+        # Additional visualizations
+        plot_messages_per_user(eda)
+        plot_wordcloud(cleaned_df)
 
     else:
         st.warning("Currently, only Telegram JSON files are supported.")
